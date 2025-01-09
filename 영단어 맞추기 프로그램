@@ -1,0 +1,100 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void test();
+
+typedef struct word{
+    char english[16];
+    char korean[22];
+    struct word *next;
+}word;
+word *head = NULL;
+
+void filereader(char* filename){
+    FILE *ifp;
+    ifp = fopen(filename,"r");
+    if (ifp == NULL) {
+        printf("오류: 파일을 열 수 없습니다.");
+        return;
+    }
+    char eng[16], kor[22];
+    while (fscanf(ifp,"%s %s",eng,kor) != EOF) {
+        word* w = (word*)malloc(sizeof(word));
+        strcpy(w ->english, eng);
+        strcpy(w -> korean, kor);
+        w -> next = NULL;
+        
+        if (head == NULL||strcmp(head->english,w->english)>0){
+            w->next = head;
+            head = w;
+        }
+        else {
+            word*temp = head;
+            while (temp->next !=NULL && strcmp(temp->next->english,w->english)<0){
+                temp = temp->next;
+            }
+            w->next = temp->next;
+            temp->next = w;
+        }
+    }
+    fclose(ifp);
+    return;
+}
+
+void program(){
+    while(1){
+        system("clear");
+        int num;
+        printf(">> 영어 단어 맞추기 프로그램 <<\n");
+        printf("1. 영어 단어 맞추기            2. 프로그램 종료\n\n");
+        printf("번호를 선택하세요: ");
+        scanf("%d",&num);
+        if (num == 1){
+            test();
+        }
+        else if (num == 2){
+            system("clear");
+            return;
+        }
+    }
+}
+void test(){
+    int cor=0,incor=0;
+    float score;
+    system("clear");
+    printf(">> 영어 단어 맞추기 <<\n");
+    word *temp = head;
+    while (temp!=NULL){
+        char answer[16];
+        printf("\n%s -> ",temp->korean);
+        scanf("%s",answer);
+        if (strcmp(answer,".quit")==0) break;
+        if (strcmp(answer, temp->english)==0){
+            printf("correct!\n");
+            cor++;
+        }
+        else {
+            printf("incorrect!\n");
+            incor++;
+        }
+        temp = temp->next;
+    }
+    while (head!=NULL){
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+    temp = NULL;
+    score = (float)cor*100/(cor+incor);
+    printf("당신의 점수는 %.2f 점입니다.",score);
+    while (getchar() != '\n');
+    getchar();
+    return;
+}
+
+int main(){
+    filereader("dic.txt");
+    program();
+    return 0;
+}
