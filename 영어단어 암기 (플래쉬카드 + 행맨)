@@ -1,0 +1,222 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+
+typedef struct dict {
+	char eng[20];
+	char kor[20];
+}dictionary;
+
+dictionary dict[7][10] = {
+    { {"absurd", "불합리한"}, {"blaze", "불꽃"}, {"cluster", "무리"}, {"delicate", "섬세한"},
+      {"enthusiastic", "열광적인"}, {"fragment", "조각"}, {"glimpse", "힐끗 봄"}, {"harbor", "항구"},
+      {"illuminate", "밝히다"}, {"junction", "교차로"} },
+
+    { {"kettle", "주전자"}, {"levitate", "떠오르다"}, {"marvel", "경이로움"}, {"navigate", "항해하다"},
+      {"oasis", "오아시스"}, {"paradox", "역설"}, {"query", "질문"}, {"ravage", "파괴하다"},
+      {"scatter", "흩뿌리다"}, {"tranquil", "고요한"} },
+
+    { {"umbrella", "우산"}, {"venture", "모험"}, {"whisper", "속삭이다"}, {"yearn", "갈망하다"},
+      {"zealous", "열성적인"}, {"acclaim", "찬사"}, {"barrier", "장벽"}, {"chaos", "혼란"},
+      {"dazzle", "눈부시게"}, {"essence", "본질"} },
+
+    { {"flawless", "완벽한"}, {"glimmer", "빛나다"}, {"hinder", "방해하다"}, {"inspire", "영감을 주다"},
+      {"jubilant", "기뻐하는"}, {"kindle", "불을 붙이다"}, {"lament", "슬퍼하다"}, {"mend", "고치다"},
+      {"nurture", "기르다"}, {"oblivious", "의식 못하는"} },
+
+    { {"perplex", "당황하게"}, {"quest", "탐구"}, {"radiant", "빛나는"}, {"soar", "치솟다"},
+      {"thrive", "번창하다"}, {"unveil", "공개하다"}, {"vivid", "생생한"}, {"wander", "돌아다니다"},
+      {"yield", "양보하다"}, {"ample", "충분한"} },
+
+    { {"bewilder", "혼란스럽게"}, {"candid", "솔직한"}, {"deceit", "속임수"}, {"eclipse", "가리다"},
+      {"foster", "촉진하다"}, {"genuine", "진짜의"}, {"humble", "겸손한"}, {"inevitable", "피할 수 없는"},
+      {"justice", "정의"}, {"keen", "열망하는"} },
+
+    { {"luminous", "빛나는"}, {"mirage", "신기루"}, {"nostalgia", "향수"}, {"obscure", "불명확한"},
+      {"pristine", "깨끗한"}, {"quaint", "예스러운"}, {"resilient", "회복력 있는"}, {"sturdy", "튼튼한"},
+      {"transient", "일시적인"}, {"vigilant", "경계하는"} }
+};
+
+void clearflash(){
+    system("clear");
+    printf(">> 영어 단어 암기 프로그램 : 플래쉬카드 <<");
+    printf("\n\n\n\n");
+}
+
+void flashcard() {
+    srand(time(NULL));
+    int date,num,usednum=0,ran,sec=0,time=1.0;
+    int used[10] = {0,};
+    printf("학습 일차 : ");
+    scanf("%d", &date);
+    printf("출력 방식(수동모드 : 1, 자동모드 : 2) : ");
+    scanf("%d", &num);
+    clearflash();
+    if (num == 1) {
+        while (usednum < 10) {
+            if (usednum==0) getchar();
+            do {
+                ran = rand() % 10;
+            } while (used[ran] == 1);
+
+            getchar();
+            clearflash();
+            printf("%s", dict[date - 1][ran].eng);
+
+            getchar();
+            clearflash();
+            printf("%s", dict[date - 1][ran].kor);
+            usednum++;
+            used[ran] = 1;
+        }
+        printf("\n\nEnter키를 눌러 메뉴로 돌아가세요");
+        getchar();
+    }
+    else {
+        clock_t start = clock();
+        while (usednum < 10) {
+            if ((clock() - start) / (double)CLOCKS_PER_SEC >= 1.0) {
+                sec++;
+                if (sec % 2 == 1) {
+                    do {
+                        ran = rand() % 10;
+                    } while (used[ran] == 1);
+                    clearflash();
+                    printf("%s\n", dict[date - 1][ran].eng);
+                }
+                else {
+                    clearflash();
+                    printf("%s\n", dict[date - 1][ran].kor);
+                    usednum++;
+                    used[ran] = 1;
+                }
+                start = clock();
+            }
+        }
+        start = clock();
+        while(1){
+            if ((clock() - start) / (double)CLOCKS_PER_SEC >= 1.0) {
+                break;
+            }
+        }
+    }
+    return;
+}
+void cleargame(char *hint){
+    system("clear");
+    printf(">> 영어 단어 암기 프로그램 : 게임 <<\n");
+    printf("(힌트) %s\n",hint);
+    printf("\n\n");
+    printf("-------------------+\n");
+    return;
+}
+
+void clearman(int wrong){
+    if (wrong >= 1){
+        printf("                   O\n");
+    }
+    if (wrong ==2){
+        printf("                 /\n");
+    }
+    else if (wrong == 3){
+        printf("                 / |\n");
+    }
+    else if (wrong >= 4){
+        printf("                 / | \\ \n");
+    }
+    if (wrong == 5){
+        printf("                  /\n");
+    }
+    else if (wrong == 6){
+        printf("                  / \\ \n");
+    }
+    return;
+}
+
+void game(){
+    srand(time(NULL));
+    int date,ran,wordlen,attnum=1,wrong=0,flag=0,clear,found =0;
+    char word[20],wordkor[20],attword,answer[20];
+    printf("학습 일차 : ");
+    scanf("%d",&date);
+    ran = rand() % 10;
+    strcpy(word, dict[date - 1][ran].eng);
+    strcpy(wordkor,dict[date -1][ran].kor);
+    wordlen = strlen(word);
+    for (int i=0;i<wordlen*2;i+=2){
+        answer[i] = '_';
+        answer[i+1]=' ';
+        if (i!=wordlen*2-1) {
+            answer[i] = '_';
+            answer[i+1]=' ';
+        }
+        else answer[i] = '_';
+    }
+
+    while (1){
+        found = 0;
+        flag = 0;
+        cleargame(wordkor);
+        clearman(wrong);
+        printf("%s\n",answer);
+        printf("%d번째 시도 : ",attnum);
+        scanf(" %c",&attword);
+
+        for (int i=0;i<wordlen;i++){
+            if (attword == word[i]){
+                answer[i*2] = word[i];
+                word[i] = '0';
+                found =1;
+            }
+        }
+        if (found == 0) wrong++;
+        for (int i=0;i<wordlen;i++){
+            if (answer[i*2] == '_'){
+                flag++;
+            }
+        }
+        if (flag == 0) {
+            clear=1;
+            break;
+        }
+        if (wrong == 6){
+            break;
+        }
+        attnum++;
+    }
+
+    if (clear ==1){
+        printf("##########################\n");
+        printf("### Congratulations!!! ###\n");
+        printf("##########################\n");
+    }
+    else printf("you failed\n");
+    clock_t start = clock();
+    while(1){
+        if ((clock() - start) / (double)CLOCKS_PER_SEC >= 3.0) {
+            break;
+        }
+    }
+    return;
+}
+
+int main() {
+    do{
+        system("clear");
+        int n;
+        printf(">> 영어 단어 암기 프로그램 <<\n");
+        printf("1. 플래쉬 카드          2. 게임          3. 프로그램 종료\n"); 
+        printf("번호를 선택하세요 : ");
+        scanf("%d",&n);
+        if (n == 1){
+            flashcard();
+        }
+        else if (n==2){
+            game();
+        }
+        else if (n==3) break;
+    } while(1);
+    system("clear");
+    return 0;
+}
